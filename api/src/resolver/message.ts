@@ -1,23 +1,38 @@
-import { Context } from 'src/utils/types';
+import { Context } from '../utils/types';
 import {
   Arg,
   Ctx,
+  Field,
   // Field,
   // Int,
   Mutation,
+  ObjectType,
   // ObjectType,
   Query,
   Resolver,
 } from 'type-graphql';
+import { getConnection } from 'typeorm';
 // import { getConnection } from 'typeorm';
 import { Message } from '../entity/Message';
-import { UserMessageInput } from './Inputs/UserMessageInput';
+import { MessageInput } from './Inputs/MessageInput';
+import { validateMessageInput } from '../utils/validateMessageInput';
 
-// @ObjectType()
-// class PaginatedMessages {
-//   @Field(() => [Message])
-//   posts: Message[];
-// }
+@ObjectType()
+class MessageFieldError {
+  @Field()
+  field: string;
+  @Field()
+  message: string;
+}
+
+@ObjectType()
+export class MessageResponse {
+  @Field(() => [MessageFieldError], { nullable: true })
+  errors?: MessageFieldError[];
+
+  @Field(() => Message, { nullable: true })
+  message?: Message;
+}
 
 @Resolver(Message)
 export class MessageResolver {
@@ -26,34 +41,36 @@ export class MessageResolver {
     return 'Hello message';
   }
 
-  // @Query(() => PaginatedMessages)
-  // async allMessage(
-  //   @Arg('limit', () => Int) limit: number
-  // ): Promise<PaginatedMessages> {
-  //   const realLimit = Math.min(10, limit);
-
-  //   const realLimitPlusOne = realLimit + 1;
-  //   const qb = await getConnection()
-  //     .getRepository(Message)
-  //     .createQueryBuilder('m')
-  //     .innerJoinAndSelect('m.user', 'u', 'u.userName = m."userName"')
-  //     .orderBy('m."createdAt"', 'DESC')
-  //     .take(realLimitPlusOne);
-
-  //   const messages = await qb.getMany();
-
-  //   return { messages: messages.slice(0, realLimit) };
-  // }
-
-  @Mutation(() => Message)
+  @Mutation(() => MessageResponse)
   async message(
-    @Arg('input') input: UserMessageInput,
+    @Arg('input') input: MessageInput,
     @Ctx() { req }: Context
-  ): Promise<Message> {
-    const userMessage = await Message.create({
-      ...input,
-      userName: req.session.userName,
-    }).save();
-    return userMessage;
+  ): Promise<MessageResponse> {
+    const errors = validateMessageInput(input);
+
+    if (errors) {
+      return { errors };
+    }
+
+    let message;
+
+    try {
+      const result = await getConnection()
+        .createQueryBuilder()
+        .insert()
+        .into(Message)
+        .values({
+          message: input.message,
+          userName: req.session.userName,
+        })
+        .returning('*')
+        .execute();
+
+      message = result.raw[0];
+    } catch (err) {
+      console.log(err);
+    }
+
+    return { message };
   }
 }

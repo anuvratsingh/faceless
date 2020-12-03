@@ -1,10 +1,7 @@
 import { Field, InputType } from 'type-graphql';
-import { Length } from 'class-validator';
 
 @InputType()
-export class UserMessageInput {
+export class MessageInput {
   @Field()
-  @Length(1, 255)
   message: string;
-
 }

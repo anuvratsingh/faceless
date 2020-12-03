@@ -1,0 +1,5 @@
+mutation UserName($input: UserNameInput!) {
+  user(input: $input) {
+    ...RegularUserResponse
+  }
+}
