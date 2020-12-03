@@ -19,6 +19,7 @@
     "next": "latest",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
+    "react-icons": "^4.1.0",
     "urql": "^1.11.3"
   },
   "devDependencies": {

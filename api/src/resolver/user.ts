@@ -11,7 +11,8 @@ import {
 import { User } from '../entity/User';
 import { UserNameInput } from './Inputs/UserNameInput';
 import { validateUserNameInput } from '../utils/ValidateUserNameInput';
-import { getConnection } from 'typeorm';
+import { COOKIE_NAME } from '../secret';
+// import { getConnection } from 'typeorm';
 
 @ObjectType()
 class FieldError {
@@ -43,33 +44,49 @@ export class UserResolver {
     @Ctx() { req }: Context
   ): Promise<UserResponse> {
     const errors = validateUserNameInput(input);
-    console.log(errors)
+    console.log(errors);
     if (errors) {
       return { errors };
     }
 
-    let user;
+    // let user;
 
-    // const user = await User.create({ userName }).save();
+    const user = await User.create({ ...input }).save();
 
-    try {
-      const result = await getConnection()
-        .createQueryBuilder()
-        .insert()
-        .into(User)
-        .values({
-          userName: input.userName,
-        })
-        .returning('*')
-        .execute();
-      console.log(result);
-      user = result.raw[0];
-    } catch (err) {
-      console.log(err);
-    }
+    // try {
+    //   const result = await getConnection()
+    //     .createQueryBuilder()
+    //     .insert()
+    //     .into(User)
+    //     .values({
+    //       userName: input.userName,
+    //     })
+    //     .returning('*')
+    //     .execute();
+    //   console.log(result);
+    //   user = result.raw[0];
+    // } catch (err) {
+    //   console.log(err);
+    // }
 
     req.session.userName = user.userName;
 
     return { user };
+  }
+
+  @Mutation(() => Boolean)
+  exit(@Ctx() { req, res }: Context) {
+    return new Promise((resolve) =>
+      req.session.destroy((err) => {
+        res.clearCookie(COOKIE_NAME);
+        if (err) {
+          console.log(err);
+          resolve(false);
+          return;
+        }
+
+        resolve(true);
+      })
+    );
   }
 }

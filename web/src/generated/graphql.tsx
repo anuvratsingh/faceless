@@ -22,8 +22,9 @@ export type Query = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  message: MessageResponse;
+  message: Message;
   user: UserResponse;
+  exit: Scalars['Boolean'];
 };
 
 
@@ -34,18 +35,6 @@ export type MutationMessageArgs = {
 
 export type MutationUserArgs = {
   input: UserNameInput;
-};
-
-export type MessageResponse = {
-  __typename?: 'MessageResponse';
-  errors?: Maybe<Array<MessageFieldError>>;
-  message?: Maybe<Message>;
-};
-
-export type MessageFieldError = {
-  __typename?: 'MessageFieldError';
-  field: Scalars['String'];
-  message: Scalars['String'];
 };
 
 export type Message = {
@@ -104,6 +93,19 @@ export type RegularUserResponseFragment = (
   )> }
 );
 
+export type MessageMutationVariables = Exact<{
+  input: MessageInput;
+}>;
+
+
+export type MessageMutation = (
+  { __typename?: 'Mutation' }
+  & { message: (
+    { __typename?: 'Message' }
+    & Pick<Message, 'id' | 'message' | 'userName' | 'createdAt'>
+  ) }
+);
+
 export type UserNameMutationVariables = Exact<{
   input: UserNameInput;
 }>;
@@ -113,7 +115,13 @@ export type UserNameMutation = (
   { __typename?: 'Mutation' }
   & { user: (
     { __typename?: 'UserResponse' }
-    & RegularUserResponseFragment
+    & { errors?: Maybe<Array<(
+      { __typename?: 'FieldError' }
+      & Pick<FieldError, 'field' | 'message'>
+    )>>, user?: Maybe<(
+      { __typename?: 'User' }
+      & Pick<User, 'id' | 'userName'>
+    )> }
   ) }
 );
 
@@ -140,13 +148,34 @@ export const RegularUserResponseFragmentDoc = gql`
 }
     ${RegularErrorFragmentDoc}
 ${RegularUserFragmentDoc}`;
+export const MessageDocument = gql`
+    mutation Message($input: MessageInput!) {
+  message(input: $input) {
+    id
+    message
+    userName
+    createdAt
+  }
+}
+    `;
+
+export function useMessageMutation() {
+  return Urql.useMutation<MessageMutation, MessageMutationVariables>(MessageDocument);
+};
 export const UserNameDocument = gql`
     mutation UserName($input: UserNameInput!) {
   user(input: $input) {
-    ...RegularUserResponse
+    errors {
+      field
+      message
+    }
+    user {
+      id
+      userName
+    }
   }
 }
-    ${RegularUserResponseFragmentDoc}`;
+    `;
 
 export function useUserNameMutation() {
   return Urql.useMutation<UserNameMutation, UserNameMutationVariables>(UserNameDocument);

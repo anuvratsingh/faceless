@@ -1,5 +1,12 @@
 mutation UserName($input: UserNameInput!) {
   user(input: $input) {
-    ...RegularUserResponse
+    errors {
+      field
+      message
+    }
+    user {
+      id
+      userName
+    }
   }
 }

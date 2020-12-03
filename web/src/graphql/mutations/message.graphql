@@ -1,0 +1,9 @@
+mutation Message($input: MessageInput!) {
+  message(input: $input) {
+    id
+    message
+    userName
+    createdAt
+
+  }
+}

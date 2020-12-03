@@ -15,7 +15,7 @@ export class Message extends BaseEntity {
   @Field(() => ID)
   @PrimaryGeneratedColumn()
   id!: number;
-
+  
   @Field()
   @Column()
   message!: string;
@@ -24,7 +24,7 @@ export class Message extends BaseEntity {
   @Column()
   userName: string;
 
-  @ManyToOne(() => User, (user) => user.message)
+  @ManyToOne(() => User, (user) => user.messages)
   user: User;
 
   @Field(() => String)

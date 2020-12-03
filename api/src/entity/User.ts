@@ -21,7 +21,7 @@ export class User extends BaseEntity {
   userName!: string;
 
   @OneToMany(() => Message, (message) => message.user)
-  message: Message[];
+  messages: Message[];
 
   @Field(() => String)
   @CreateDateColumn()

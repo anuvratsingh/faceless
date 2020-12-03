@@ -6,25 +6,36 @@ import { createConnection } from 'typeorm';
 import session from 'express-session';
 import connectRedis from 'connect-redis';
 import cors from 'cors';
+import {
+  COOKIE_SECRET,
+  COOKIE_NAME,
+  SERVER_URL,
+  CLIENT_URL,
+  COOKIE_AGE_DAYS,
+  __prod__,
+} from './secret';
 
 import { MessageResolver } from './resolver/message';
 import { UserResolver } from './resolver/user';
 import { redis } from './redis';
 // import { User } from './entity/User';
+// import { Message } from './entity/Message';
 
 const main = async () => {
   await createConnection();
 
   const schema = await buildSchema({
+    validate: false,
     resolvers: [UserResolver, MessageResolver],
   });
 
   const apolloServer = new ApolloServer({
     schema,
-    context: ({ req }) => ({ req }),
+    context: ({ req, res }) => ({ req, res, redis }),
   });
 
-  // await User.delete({}); to delete all data from this entity
+  // await User.delete({}); // to delete all data from this entity
+  // await Message.delete({})
   const app = express();
 
   const RedisStore = connectRedis(session);
@@ -32,24 +43,24 @@ const main = async () => {
   app.use(
     cors({
       credentials: true,
-      origin: 'http://localhost:3000',
+      origin: CLIENT_URL,
     })
   );
 
   app.use(
     session({
-      name: 'cookie',
+      name: COOKIE_NAME,
       store: new RedisStore({
-        client: redis as any,
+        client: redis,
       }),
       cookie: {
         httpOnly: true,
-        sameSite: 'lax',
-        secure: false,
-        maxAge: 1000 * 60 * 60 * 24, // 1 day
+        sameSite: 'strict',
+        secure: __prod__,
+        maxAge: COOKIE_AGE_DAYS * 7, // 7 days
       },
       saveUninitialized: false,
-      secret: 'ThisIsASecret',
+      secret: COOKIE_SECRET,
       resave: false,
     })
   );
@@ -57,7 +68,7 @@ const main = async () => {
   apolloServer.applyMiddleware({ app, cors: false });
 
   app.listen(4000, () => {
-    console.log('Server started http://localhost:4000/graphql');
+    console.log(`Server started ${SERVER_URL}`);
   });
 };
 

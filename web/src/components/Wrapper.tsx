@@ -6,10 +6,7 @@ interface WrapperProps {}
 const Wrapper: React.FC<WrapperProps> = ({ children }) => {
   return (
     <>
-      {/* 
-        <Example />
-      </Box> */}
-      <Box maxW='400px' w='100%' mt='22vh' mx='auto'>
+      <Box maxW='40px' w='10%' display='none'>
         {children}
       </Box>
     </>

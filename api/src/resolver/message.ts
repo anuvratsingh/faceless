@@ -1,38 +1,21 @@
-import { Context } from '../utils/types';
+import { isUser } from '../middleware/isUser';
 import {
   Arg,
   Ctx,
-  Field,
+
   // Field,
   // Int,
   Mutation,
-  ObjectType,
+
   // ObjectType,
   Query,
   Resolver,
+  UseMiddleware,
 } from 'type-graphql';
-import { getConnection } from 'typeorm';
 // import { getConnection } from 'typeorm';
 import { Message } from '../entity/Message';
+import { Context } from '../utils/types';
 import { MessageInput } from './Inputs/MessageInput';
-import { validateMessageInput } from '../utils/validateMessageInput';
-
-@ObjectType()
-class MessageFieldError {
-  @Field()
-  field: string;
-  @Field()
-  message: string;
-}
-
-@ObjectType()
-export class MessageResponse {
-  @Field(() => [MessageFieldError], { nullable: true })
-  errors?: MessageFieldError[];
-
-  @Field(() => Message, { nullable: true })
-  message?: Message;
-}
 
 @Resolver(Message)
 export class MessageResolver {
@@ -41,36 +24,17 @@ export class MessageResolver {
     return 'Hello message';
   }
 
-  @Mutation(() => MessageResponse)
+  @Mutation(() => Message)
+  @UseMiddleware(isUser)
   async message(
     @Arg('input') input: MessageInput,
     @Ctx() { req }: Context
-  ): Promise<MessageResponse> {
-    const errors = validateMessageInput(input);
+  ): Promise<Message> {
+    const message = await Message.create({
+      ...input,
+      userName: req.session.userName,
+    }).save();
 
-    if (errors) {
-      return { errors };
-    }
-
-    let message;
-
-    try {
-      const result = await getConnection()
-        .createQueryBuilder()
-        .insert()
-        .into(Message)
-        .values({
-          message: input.message,
-          userName: req.session.userName,
-        })
-        .returning('*')
-        .execute();
-
-      message = result.raw[0];
-    } catch (err) {
-      console.log(err);
-    }
-
-    return { message };
+    return message;
   }
 }
