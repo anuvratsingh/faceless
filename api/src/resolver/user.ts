@@ -15,7 +15,7 @@ import { COOKIE_NAME } from '../secret';
 // import { getConnection } from 'typeorm';
 
 @ObjectType()
-class FieldError {
+class UserFieldError {
   @Field()
   field: string;
   @Field()
@@ -24,8 +24,8 @@ class FieldError {
 
 @ObjectType()
 class UserResponse {
-  @Field(() => [FieldError], { nullable: true })
-  errors?: FieldError[];
+  @Field(() => [UserFieldError], { nullable: true })
+  errors?: UserFieldError[];
 
   @Field(() => User, { nullable: true })
   user?: User;

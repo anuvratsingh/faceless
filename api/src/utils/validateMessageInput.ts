@@ -1,6 +1,18 @@
 import { MessageInput } from '../resolver/Inputs/MessageInput';
+import { Context } from './types';
 
-export const validateMessageInput = (input: MessageInput) => {
+export const validateMessageInput = (
+  input: MessageInput,
+  request: Context['req']
+) => {
+  if (!request.session.userName) {
+    return [
+      {
+        field: 'message',
+        message: 'Go get an alias first',
+      },
+    ];
+  }
   if (input.message.length <= 1) {
     return [
       {

@@ -1,9 +1,14 @@
-mutation Message($input: MessageInput!) {
+mutation message($input: MessageInput!) {
   message(input: $input) {
-    id
-    message
-    userName
-    createdAt
-
+    errors {
+      field
+      message
+    }
+    message {
+      id
+      message
+      userName
+      createdAt
+    }
   }
 }

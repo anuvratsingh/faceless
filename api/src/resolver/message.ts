@@ -1,21 +1,47 @@
-import { isUser } from '../middleware/isUser';
 import {
   Arg,
   Ctx,
+  Field,
 
   // Field,
-  // Int,
+  // Int,g
   Mutation,
+  ObjectType,
 
   // ObjectType,
   Query,
   Resolver,
-  UseMiddleware,
 } from 'type-graphql';
 // import { getConnection } from 'typeorm';
 import { Message } from '../entity/Message';
 import { Context } from '../utils/types';
+import { validateMessageInput } from '../utils/validateMessageInput';
 import { MessageInput } from './Inputs/MessageInput';
+
+@ObjectType()
+class MessageFieldError {
+  @Field()
+  field: string;
+  @Field()
+  message: string;
+}
+
+@ObjectType()
+class MessageResponse {
+  @Field(() => [MessageFieldError], { nullable: true })
+  errors?: MessageFieldError[];
+
+  @Field(() => Message, { nullable: true })
+  message?: Message;
+}
+
+// @ObjectType()
+// class PaginatedMessages {
+//   @Field(() => [Message])
+//   messages: Message[];
+//   @Field()
+//   hasMore: boolean;
+// }
 
 @Resolver(Message)
 export class MessageResolver {
@@ -24,17 +50,25 @@ export class MessageResolver {
     return 'Hello message';
   }
 
-  @Mutation(() => Message)
-  @UseMiddleware(isUser)
+  @Query(() => [Message])
+  async allMessages(): Promise<Message[]> {
+    return Message.find();
+  }
+
+  @Mutation(() => MessageResponse)
   async message(
     @Arg('input') input: MessageInput,
     @Ctx() { req }: Context
-  ): Promise<Message> {
+  ): Promise<MessageResponse> {
+    const errors = validateMessageInput(input, req);
+    if (errors) {
+      return { errors };
+    }
     const message = await Message.create({
       ...input,
       userName: req.session.userName,
     }).save();
 
-    return message;
+    return { message };
   }
 }

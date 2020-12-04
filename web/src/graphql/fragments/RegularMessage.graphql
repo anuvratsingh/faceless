@@ -1,0 +1,6 @@
+fragment RegularMessage on Message {
+  id
+  message
+  userName
+  createdAt
+}

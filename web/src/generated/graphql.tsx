@@ -17,12 +17,21 @@ export type Scalars = {
 export type Query = {
   __typename?: 'Query';
   helloMessage: Scalars['String'];
+  allMessages: Array<Message>;
   helloUser: Scalars['String'];
+};
+
+export type Message = {
+  __typename?: 'Message';
+  id: Scalars['ID'];
+  message: Scalars['String'];
+  userName: Scalars['String'];
+  createdAt: Scalars['String'];
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
-  message: Message;
+  message: MessageResponse;
   user: UserResponse;
   exit: Scalars['Boolean'];
 };
@@ -37,12 +46,16 @@ export type MutationUserArgs = {
   input: UserNameInput;
 };
 
-export type Message = {
-  __typename?: 'Message';
-  id: Scalars['ID'];
+export type MessageResponse = {
+  __typename?: 'MessageResponse';
+  errors?: Maybe<Array<MessageFieldError>>;
+  message?: Maybe<Message>;
+};
+
+export type MessageFieldError = {
+  __typename?: 'MessageFieldError';
+  field: Scalars['String'];
   message: Scalars['String'];
-  userName: Scalars['String'];
-  createdAt: Scalars['String'];
 };
 
 export type MessageInput = {
@@ -51,12 +64,12 @@ export type MessageInput = {
 
 export type UserResponse = {
   __typename?: 'UserResponse';
-  errors?: Maybe<Array<FieldError>>;
+  errors?: Maybe<Array<UserFieldError>>;
   user?: Maybe<User>;
 };
 
-export type FieldError = {
-  __typename?: 'FieldError';
+export type UserFieldError = {
+  __typename?: 'UserFieldError';
   field: Scalars['String'];
   message: Scalars['String'];
 };
@@ -72,9 +85,25 @@ export type UserNameInput = {
   userName: Scalars['String'];
 };
 
-export type RegularErrorFragment = (
-  { __typename?: 'FieldError' }
-  & Pick<FieldError, 'field' | 'message'>
+export type MessageFieldErrorFragment = (
+  { __typename?: 'MessageFieldError' }
+  & Pick<MessageFieldError, 'field' | 'message'>
+);
+
+export type RegularMessageFragment = (
+  { __typename?: 'Message' }
+  & Pick<Message, 'id' | 'message' | 'userName' | 'createdAt'>
+);
+
+export type RegularMessageResponseFragment = (
+  { __typename?: 'MessageResponse' }
+  & { errors?: Maybe<Array<(
+    { __typename?: 'MessageFieldError' }
+    & MessageFieldErrorFragment
+  )>>, message?: Maybe<(
+    { __typename?: 'Message' }
+    & RegularMessageFragment
+  )> }
 );
 
 export type RegularUserFragment = (
@@ -85,12 +114,17 @@ export type RegularUserFragment = (
 export type RegularUserResponseFragment = (
   { __typename?: 'UserResponse' }
   & { errors?: Maybe<Array<(
-    { __typename?: 'FieldError' }
-    & RegularErrorFragment
+    { __typename?: 'UserFieldError' }
+    & UserFieldErrorFragment
   )>>, user?: Maybe<(
     { __typename?: 'User' }
     & RegularUserFragment
   )> }
+);
+
+export type UserFieldErrorFragment = (
+  { __typename?: 'UserFieldError' }
+  & Pick<UserFieldError, 'field' | 'message'>
 );
 
 export type MessageMutationVariables = Exact<{
@@ -101,8 +135,14 @@ export type MessageMutationVariables = Exact<{
 export type MessageMutation = (
   { __typename?: 'Mutation' }
   & { message: (
-    { __typename?: 'Message' }
-    & Pick<Message, 'id' | 'message' | 'userName' | 'createdAt'>
+    { __typename?: 'MessageResponse' }
+    & { errors?: Maybe<Array<(
+      { __typename?: 'MessageFieldError' }
+      & Pick<MessageFieldError, 'field' | 'message'>
+    )>>, message?: Maybe<(
+      { __typename?: 'Message' }
+      & Pick<Message, 'id' | 'message' | 'userName' | 'createdAt'>
+    )> }
   ) }
 );
 
@@ -116,8 +156,8 @@ export type UserNameMutation = (
   & { user: (
     { __typename?: 'UserResponse' }
     & { errors?: Maybe<Array<(
-      { __typename?: 'FieldError' }
-      & Pick<FieldError, 'field' | 'message'>
+      { __typename?: 'UserFieldError' }
+      & Pick<UserFieldError, 'field' | 'message'>
     )>>, user?: Maybe<(
       { __typename?: 'User' }
       & Pick<User, 'id' | 'userName'>
@@ -125,8 +165,44 @@ export type UserNameMutation = (
   ) }
 );
 
-export const RegularErrorFragmentDoc = gql`
-    fragment RegularError on FieldError {
+export type Unnamed_1_QueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type Unnamed_1_Query = (
+  { __typename?: 'Query' }
+  & { allMessages: Array<(
+    { __typename?: 'Message' }
+    & RegularMessageFragment
+  )> }
+);
+
+export const MessageFieldErrorFragmentDoc = gql`
+    fragment MessageFieldError on MessageFieldError {
+  field
+  message
+}
+    `;
+export const RegularMessageFragmentDoc = gql`
+    fragment RegularMessage on Message {
+  id
+  message
+  userName
+  createdAt
+}
+    `;
+export const RegularMessageResponseFragmentDoc = gql`
+    fragment RegularMessageResponse on MessageResponse {
+  errors {
+    ...MessageFieldError
+  }
+  message {
+    ...RegularMessage
+  }
+}
+    ${MessageFieldErrorFragmentDoc}
+${RegularMessageFragmentDoc}`;
+export const UserFieldErrorFragmentDoc = gql`
+    fragment UserFieldError on UserFieldError {
   field
   message
 }
@@ -140,21 +216,27 @@ export const RegularUserFragmentDoc = gql`
 export const RegularUserResponseFragmentDoc = gql`
     fragment RegularUserResponse on UserResponse {
   errors {
-    ...RegularError
+    ...UserFieldError
   }
   user {
     ...RegularUser
   }
 }
-    ${RegularErrorFragmentDoc}
+    ${UserFieldErrorFragmentDoc}
 ${RegularUserFragmentDoc}`;
 export const MessageDocument = gql`
-    mutation Message($input: MessageInput!) {
+    mutation message($input: MessageInput!) {
   message(input: $input) {
-    id
-    message
-    userName
-    createdAt
+    errors {
+      field
+      message
+    }
+    message {
+      id
+      message
+      userName
+      createdAt
+    }
   }
 }
     `;
@@ -179,4 +261,15 @@ export const UserNameDocument = gql`
 
 export function useUserNameMutation() {
   return Urql.useMutation<UserNameMutation, UserNameMutationVariables>(UserNameDocument);
+};
+export const Document = gql`
+    {
+  allMessages {
+    ...RegularMessage
+  }
+}
+    ${RegularMessageFragmentDoc}`;
+
+export function useQuery(options: Omit<Urql.UseQueryArgs<QueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<Query>({ query: Document, ...options });
 };

@@ -3,7 +3,7 @@ import { Form, Formik } from 'formik';
 import { useRouter } from 'next/router';
 import React from 'react';
 import { useUserNameMutation } from '../generated/graphql';
-import { toErrorMap } from '../utils/toErrorMap';
+import { toUserErrorMap } from '../utils/toUserErrorMap';
 import InputField from './InputField';
 interface UsernameProps {}
 
@@ -18,7 +18,7 @@ const Username: React.FC<UsernameProps> = ({}) => {
         // const response = await user(values); if using this can't see errors
         const response = await user({ input: values });
         if (response.data?.user.errors) {
-          setErrors(toErrorMap(response.data.user.errors));
+          setErrors(toUserErrorMap(response.data.user.errors));
         } else if (response.data?.user.user) {
           router.push('/board');
           //hello

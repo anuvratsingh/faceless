@@ -8,6 +8,10 @@ export type Context = {
   redis: Redis;
 };
 
+export type ContextRequest = {
+  req: { session: Session & { userName: string } };
+};
+
 // export interface MyRequest extends Request {
 //   session: Session & { userName: string };
 // }
