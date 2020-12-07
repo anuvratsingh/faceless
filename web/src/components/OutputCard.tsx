@@ -1,4 +1,3 @@
-import { Box, Heading, Text } from '@chakra-ui/react';
 import React from 'react';
 
 type OutputCardProps = React.InputHTMLAttributes<HTMLInputElement> & {
@@ -15,13 +14,11 @@ const OutputCard: React.FC<OutputCardProps> = ({
   id,
 }) => {
   return (
-    <>
-      <Box p={5} shadow='md' borderWidth='1px' id={id}>
-        <Heading fontSize='xl'>{userName}</Heading>
-        <Heading fontSize='xl'>{createdAt}</Heading>
-        <Text>{message}</Text>
-      </Box>
-    </>
+    <div id={id}>
+      <h4>{userName}</h4>
+      <h4>{createdAt}</h4>
+      <p>{message}</p>
+    </div>
   );
 };
 

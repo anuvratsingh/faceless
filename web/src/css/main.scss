@@ -1,0 +1,46 @@
+// PAGES START
+
+.index-page {
+  max-width: 1200px;
+  margin: auto;
+  margin-top: 10vh;
+}
+
+.board-page {
+  max-width: 1200px;
+  margin: auto;
+  margin-top: 10vh;
+}
+
+// PAGES END
+
+.navbar {
+position: absolute;
+right: 15vw;
+}
+
+.index-main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.message-stack {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.messages {
+  max-width: 70%;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+}
+
+.messageInput-main {
+  display: flex;
+}
+
+// .outputcard-main {
+
+// }

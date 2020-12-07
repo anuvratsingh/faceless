@@ -1,15 +1,16 @@
-import { Box, Flex } from '@chakra-ui/react';
 import React from 'react';
 import ToggleColor from '../components/ToggleColor';
 import Username from '../components/Username';
 
 const Index = () => (
-  <Box maxW='70vw' margin='auto'>
-    <ToggleColor />
-    <Flex justifyContent='center' align='center'>
+  <div className='index-page'>
+    <div className='navbar'>
+      <ToggleColor />
+    </div>
+    <div className='index-main'>
       <Username />
-    </Flex>
-  </Box>
+    </div>
+  </div>
 );
 
 export default Index;

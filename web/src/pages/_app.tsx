@@ -4,6 +4,7 @@ import React from 'react';
 import { createClient, Provider } from 'urql';
 import { SERVER_URL } from '../secret';
 import theme from '../theme';
+import '../css/main.css'
 
 const client = createClient({
   url: SERVER_URL,
@@ -15,7 +16,6 @@ function MyApp({ Component, pageProps }: AppProps) {
     <Provider value={client}>
       <ChakraProvider resetCSS theme={theme}>
         <CSSReset />
-
         <Component {...pageProps} />
       </ChakraProvider>
     </Provider>

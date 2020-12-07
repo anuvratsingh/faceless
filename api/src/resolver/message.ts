@@ -52,7 +52,12 @@ export class MessageResolver {
 
   @Query(() => [Message])
   async allMessages(): Promise<Message[]> {
-    return Message.find();
+    return Message.find({
+      take: 30,
+      order: {
+        createdAt: 'DESC',
+      },
+    });
   }
 
   @Mutation(() => MessageResponse)

@@ -13,7 +13,7 @@ export const validateMessageInput = (
       },
     ];
   }
-  if (input.message.length <= 1) {
+  if (input.message.length < 1) {
     return [
       {
         field: 'message',
