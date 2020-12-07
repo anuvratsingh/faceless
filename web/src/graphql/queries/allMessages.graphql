@@ -1,4 +1,4 @@
-query {
+query allMessages {
   allMessages {
     ...RegularMessage
   }

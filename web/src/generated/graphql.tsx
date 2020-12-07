@@ -165,10 +165,10 @@ export type UserNameMutation = (
   ) }
 );
 
-export type Unnamed_1_QueryVariables = Exact<{ [key: string]: never; }>;
+export type AllMessagesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type Unnamed_1_Query = (
+export type AllMessagesQuery = (
   { __typename?: 'Query' }
   & { allMessages: Array<(
     { __typename?: 'Message' }
@@ -262,14 +262,14 @@ export const UserNameDocument = gql`
 export function useUserNameMutation() {
   return Urql.useMutation<UserNameMutation, UserNameMutationVariables>(UserNameDocument);
 };
-export const Document = gql`
-    {
+export const AllMessagesDocument = gql`
+    query allMessages {
   allMessages {
     ...RegularMessage
   }
 }
     ${RegularMessageFragmentDoc}`;
 
-export function useQuery(options: Omit<Urql.UseQueryArgs<QueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<Query>({ query: Document, ...options });
+export function useAllMessagesQuery(options: Omit<Urql.UseQueryArgs<AllMessagesQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<AllMessagesQuery>({ query: AllMessagesDocument, ...options });
 };
