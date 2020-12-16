@@ -1,0 +1,17 @@
+**/node_modules
+**/.next/
+**/out/
+**/build
+**/src/secret.ts
+
+**/.idea/
+**/.vscode/
+**/tmp/
+**/temp/
+**/dist
+**/package-lock.json
+**/.env
+**/data
+**/pgdata
+pgdata
+heroku.yml
