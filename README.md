@@ -1,5 +1,15 @@
 ### Description 
 A basic anonymous chat app
+
+### How to use
+1. `cd api`
+2. `docker build -t faceless>`
+3. `cd ..`
+4. `cd web`
+5. `docker build -t faceless-web`
+6. `cd ..`
+7. `cd api`
+8. `docker-compose up`
 ### Stack
 - Backend
   - Typescript

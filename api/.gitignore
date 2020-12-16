@@ -7,3 +7,6 @@ temp/
 dist
 package-lock.json
 src/secret.ts
+.env
+data
+pgdata

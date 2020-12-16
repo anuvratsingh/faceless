@@ -1,28 +1,58 @@
-import 'reflect-metadata';
-import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
-import { buildSchema } from 'type-graphql';
-import { createConnection } from 'typeorm';
-import session from 'express-session';
 import connectRedis from 'connect-redis';
 import cors from 'cors';
+import express from 'express';
+import session from 'express-session';
+import 'reflect-metadata';
+import { buildSchema } from 'type-graphql';
+import { createConnection } from 'typeorm';
+import { Message } from './entity/Message';
+import { User } from './entity/User';
+import { redis } from './redis';
+import { MessageResolver } from './resolver/message';
+import { UserResolver } from './resolver/user';
 import {
-  COOKIE_SECRET,
-  COOKIE_NAME,
-  SERVER_URL,
   CLIENT_URL,
   COOKIE_AGE_DAYS,
+  COOKIE_NAME,
+  COOKIE_SECRET,
+  SERVER_URL,
   __prod__,
 } from './secret';
 
-import { MessageResolver } from './resolver/message';
-import { UserResolver } from './resolver/user';
-import { redis } from './redis';
-// import { User } from './entity/User';
-// import { Message } from './entity/Message';
-
 const main = async () => {
-  await createConnection();
+  // await createConnection({
+  //   type: 'postgres',
+  //   url: process.env.DATABASE_URL,
+  //   logging: true,
+  //   entities: [Message, User],
+  // });
+
+  let retries = 2;
+
+  while (retries) {
+    try {
+      await createConnection({
+        name: 'default',
+        type: 'postgres',
+        host: 'db', //localhost when not in docker
+        port: 5432,
+        username: 'postgres',
+        password: 'postgres',
+        database: 'faceless',
+        synchronize: true,
+        logging: false,
+        entities: [User, Message],
+      });
+      break;
+    } catch (err) {
+      console.log(err);
+      retries -= 1;
+      console.log(`retries left: ${retries}`);
+      // wait 5 seconds
+      await new Promise((res) => setTimeout(res, 5000));
+    }
+  }
 
   const schema = await buildSchema({
     validate: false,
@@ -56,8 +86,8 @@ const main = async () => {
       cookie: {
         httpOnly: true,
         sameSite: 'strict',
-        secure: __prod__,
         maxAge: COOKIE_AGE_DAYS * 7, // 7 days
+        secure: __prod__,
       },
       saveUninitialized: false,
       secret: COOKIE_SECRET,

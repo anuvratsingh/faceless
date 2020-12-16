@@ -10,7 +10,7 @@ import {
 } from 'type-graphql';
 import { User } from '../entity/User';
 import { UserNameInput } from './Inputs/UserNameInput';
-import { validateUserNameInput } from '../utils/ValidateUserNameInput';
+import { validateUserNameInput } from '../utils/validateUserNameInput';
 import { COOKIE_NAME } from '../secret';
 // import { getConnection } from 'typeorm';
 
